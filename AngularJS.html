@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html ng-app="AngularJS">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Registration</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ink: #0f0e0c;
+      --paper: #f5f0e8;
+      --accent: #c8401a;
+      --accent2: #2a4a6b;
+      --muted: #8a8070;
+      --line: #c8bfac;
+      --success-bg: #f0ebe0;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background-color: var(--paper);
+      background-image:
+        repeating-linear-gradient(0deg, transparent, transparent 27px, rgba(200,191,172,0.35) 28px),
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      min-height: 100vh;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 48px 16px 80px;
+      font-family: 'DM Sans', sans-serif;
+      color: var(--ink);
+    }
+
+    .page {
+      width: 100%;
+      max-width: 560px;
+    }
+    .header {
+      margin-bottom: 40px;
+      position: relative;
+    }
+
+    .header-label {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .header-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--accent);
+      opacity: 0.4;
+    }
+
+    .header h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 5vw, 3rem);
+      font-weight: 900;
+      line-height: 1.05;
+      letter-spacing: -0.02em;
+      color: var(--ink);
+    }
+
+    .header h1 em {
+      font-style: italic;
+      color: var(--accent2);
+    }
+
+    .header-sub {
+      margin-top: 10px;
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 300;
+      letter-spacing: 0.01em;
+    }
+
+    .card {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 3px;
+      padding: 40px 40px 36px;
+      box-shadow: 4px 6px 0 0 rgba(15,14,12,0.06), 0 2px 24px rgba(15,14,12,0.04);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--accent) 0%, var(--accent2) 100%);
+    }
+    .steps {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      margin-bottom: 36px;
+    }
+
+    .step {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .step.active { color: var(--accent); }
+    .step.done { color: var(--accent2); }
+
+    .step-num {
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      border: 1.5px solid currentColor;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px; font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .step.done .step-num {
+      background: var(--accent2);
+      border-color: var(--accent2);
+      color: #fff;
+    }
+
+    .step.done .step-num::after { content: '✓'; font-size: 9px; }
+    .step.done .step-num span { display: none; }
+    .step.active .step-num { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+    .step-line {
+      flex: 1;
+      height: 1px;
+      background: var(--line);
+      margin: 0 10px;
+    }
+    .field { margin-bottom: 26px; position: relative; }
+
+    .field label {
+      display: block;
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .field input,
+    .field select {
+      width: 100%;
+      border: none;
+      border-bottom: 1.5px solid var(--line);
+      background: transparent;
+      padding: 8px 0 10px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 16px;
+      color: var(--ink);
+      outline: none;
+      transition: border-color 0.2s, padding-left 0.2s;
+      appearance: none;
+      -webkit-appearance: none;
+      border-radius: 0;
+    }
+
+    .field input:focus,
+    .field select:focus {
+      border-color: var(--accent2);
+      padding-left: 6px;
+    }
+
+    .field input::placeholder { color: var(--line); font-size: 14px; }
+
+    .field-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+    .select-wrap { position: relative; }
+    .select-wrap::after {
+      content: '↓';
+      position: absolute;
+      right: 0; top: 50%;
+      transform: translateY(-50%);
+      color: var(--muted);
+      font-size: 13px;
+      pointer-events: none;
+    }
+
+    .btn-row { margin-top: 32px; display: flex; align-items: center; justify-content: space-between; }
+
+    .btn-submit {
+      background: var(--ink);
+      color: var(--paper);
+      border: none;
+      padding: 14px 32px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      cursor: pointer;
+      border-radius: 2px;
+      transition: background 0.2s, transform 0.12s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-submit::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: var(--accent);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.3s ease;
+    }
+
+    .btn-submit span { position: relative; z-index: 1; }
+
+    .btn-submit:hover:not([disabled])::after { transform: scaleX(1); }
+
+    .btn-submit:hover:not([disabled]) { transform: translateY(-1px); }
+
+    .btn-submit[disabled] {
+      background: var(--line);
+      cursor: not-allowed;
+      color: var(--muted);
+    }
+
+    .required-note {
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 0.02em;
+    }
+    .success-card {
+      background: var(--success-bg);
+      border: 1px solid var(--line);
+      border-radius: 3px;
+      padding: 36px 40px;
+      margin-top: 28px;
+      position: relative;
+      animation: slideUp 0.45s cubic-bezier(0.22,1,0.36,1) both;
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(18px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .success-eyebrow {
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--accent2);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .success-eyebrow::before {
+      content: '✓';
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      background: var(--accent2);
+      color: #fff;
+      font-size: 9px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .success-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.7rem;
+      font-weight: 700;
+      color: var(--ink);
+      margin-bottom: 18px;
+    }
+
+    .details-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px 24px;
+      border-top: 1px solid var(--line);
+      padding-top: 18px;
+    }
+
+    .detail-item dt {
+      font-size: 9px;
+      font-weight: 500;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .detail-item dd {
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--ink);
+    }
+
+    .reset-btn {
+      display: inline-block;
+      margin-top: 20px;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+      cursor: pointer;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      background: none;
+      border: none;
+      font-family: 'DM Sans', sans-serif;
+      transition: color 0.2s;
+    }
+    .reset-btn:hover { color: var(--accent); }
+
+    .ornament {
+      text-align: center;
+      color: var(--line);
+      font-size: 18px;
+      letter-spacing: 0.3em;
+      margin: 28px 0 0;
+      user-select: none;
+    }
+
+    @media (max-width: 480px) {
+      .card { padding: 28px 22px 24px; }
+      .field-row { grid-template-columns: 1fr; gap: 0; }
+      .details-grid { grid-template-columns: 1fr; }
+      .success-card { padding: 24px 22px; }
+    }
+  </style>
+</head>
+<body ng-controller="RegistrationCtrl">
+
+<div class="page">
+  <div class="header">
+    <div class="header-label">Academic Enrollment · {{currentYear}}</div>
+    <h1>Informatics<br><em>Student Registration</em></h1>
+    <p class="header-sub">Complete the form below to register for the current academic term.</p>
+  </div>
+
+  <div class="card" ng-hide="submitted">
+
+    <div class="steps">
+      <div class="step active">
+        <div class="step-num"><span>1</span></div>
+        Identity
+      </div>
+      <div class="step-line"></div>
+      <div class="step">
+        <div class="step-num"><span>2</span></div>
+        Placement
+      </div>
+      <div class="step-line"></div>
+      <div class="step">
+        <div class="step-num"><span>3</span></div>
+        Confirm
+      </div>
+    </div>
+
+    <form name="regForm" novalidate ng-submit="register()">
+
+      <div class="field">
+        <label for="sname">Student Full Name <span style="color:var(--accent)">*</span></label>
+        <input
+          id="sname"
+          type="text"
+          ng-model="student.name"
+          placeholder="e.g. Jhudiel Patrick Agang"
+          required
+          autocomplete="off"
+        >
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label for="sgrade">Grade Level</label>
+          <div class="select-wrap">
+            <select id="sgrade" ng-model="student.grade">
+              <option value="Grade 11">Grade 11</option>
+              <option value="Grade 12">Grade 12</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="ssection">Section</label>
+          <input
+            id="ssection"
+            type="text"
+            ng-model="student.section"
+            placeholder="e.g. 12 PROG-A"
+            autocomplete="off"
+          >
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <span class="required-note">* Required field</span>
+        <button
+          type="submit"
+          class="btn-submit"
+          ng-disabled="!student.name || !student.name.trim()"
+        >
+          <span>Register →</span>
+        </button>
+      </div>
+
+    </form>
+  </div>
+
+  <div class="success-card" ng-if="submitted">
+    <div class="success-eyebrow">Registration Confirmed</div>
+    <div class="success-name">{{student.name | uppercase}}</div>
+    <dl class="details-grid">
+      <div class="detail-item">
+        <dt>Grade Level</dt>
+        <dd>{{student.grade}}</dd>
+      </div>
+      <div class="detail-item">
+        <dt>Section</dt>
+        <dd>{{student.section || '—'}}</dd>
+      </div>
+      <div class="detail-item">
+        <dt>School Year</dt>
+        <dd>{{currentYear}}</dd>
+      </div>
+      <div class="detail-item">
+        <dt>Status</dt>
+        <dd style="color:var(--accent2)">Enrolled</dd>
+      </div>
+    </dl>
+    <button class="reset-btn" ng-click="reset()">← Register another student</button>
+  </div>
+
+  <div class="ornament">· · ·</div>
+
+</div>
+
+<script>
+  angular.module('registrationApp', [])
+    .controller('RegistrationCtrl', ['$scope', function($scope) {
+      var now = new Date();
+      $scope.currentYear = now.getFullYear() + '–' + (now.getFullYear() + 1);
+      $scope.student = { grade: 'Grade 11' };
+      $scope.submitted = false;
+
+      $scope.register = function() {
+        if (!$scope.student.name || !$scope.student.name.trim()) return;
+        $scope.submitted = true;
+      };
+
+      $scope.reset = function() {
+        $scope.submitted = false;
+        $scope.student = { grade: 'Grade 11' };
+      };
+    }]);
+</script>
+</body>
+</html>
